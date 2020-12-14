@@ -112,33 +112,99 @@ function fromJSON(proto, json) {
  *  For more examples see unit tests.
  */
 
+class MySelectorsClass {
+  constructor() {
+    this.selector = '';
+    this.isElementCalled = false;
+    this.isIdCalled = false;
+    this.isPseudoElementCalled = false;
+    this.order = 0;
+  }
+
+  element(val) {
+    if (this.isElementCalled) throw new Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+    if (this.order > 1) throw new Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    this.selector += val;
+    this.isElementCalled = true;
+    this.order = 1;
+    return this;
+  }
+
+  id(val) {
+    if (this.isIdCalled) throw new Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+    if (this.order > 2) throw new Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    this.selector += `#${val}`;
+    this.isIdCalled = true;
+    this.order = 2;
+    return this;
+  }
+
+  class(val) {
+    if (this.order > 3) throw new Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    this.selector += `.${val}`;
+    this.order = 3;
+    return this;
+  }
+
+  attr(val) {
+    if (this.order > 4) throw new Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    this.selector += `[${val}]`;
+    this.order = 4;
+    return this;
+  }
+
+  pseudoClass(val) {
+    if (this.order > 5) throw new Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    this.selector += `:${val}`;
+    this.order = 5;
+    return this;
+  }
+
+  pseudoElement(val) {
+    if (this.isPseudoElementCalled) throw new Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+    this.selector += `::${val}`;
+    this.isPseudoElementCalled = true;
+    this.order = 6;
+    return this;
+  }
+
+  combine(val1, com, val2) {
+    this.selector = `${val1.stringify()} ${com} ${val2.stringify()}`;
+    return this;
+  }
+
+  stringify() {
+    return this.selector;
+  }
+}
+
 const cssSelectorBuilder = {
-  element(/* value */) {
-    throw new Error('Not implemented');
+  element(value) {
+    return new MySelectorsClass().element(value);
   },
 
-  id(/* value */) {
-    throw new Error('Not implemented');
+  id(value) {
+    return new MySelectorsClass().id(value);
   },
 
-  class(/* value */) {
-    throw new Error('Not implemented');
+  class(value) {
+    return new MySelectorsClass().class(value);
   },
 
-  attr(/* value */) {
-    throw new Error('Not implemented');
+  attr(value) {
+    return new MySelectorsClass().attr(value);
   },
 
-  pseudoClass(/* value */) {
-    throw new Error('Not implemented');
+  pseudoClass(value) {
+    return new MySelectorsClass().pseudoClass(value);
   },
 
-  pseudoElement(/* value */) {
-    throw new Error('Not implemented');
+  pseudoElement(value) {
+    return new MySelectorsClass().pseudoElement(value);
   },
 
-  combine(/* selector1, combinator, selector2 */) {
-    throw new Error('Not implemented');
+  combine(selector1, combinator, selector2) {
+    return new MySelectorsClass().combine(selector1, combinator, selector2);
   },
 };
 
